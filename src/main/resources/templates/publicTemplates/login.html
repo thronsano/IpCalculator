@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>IP Calculator</title>
+    <link href="/styles.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+<body class="login-body">
+<section class="inside-content-box">
+    <a th:fragment="logo"><a th:href="@{/home}"><img alt="IP Calculator" class="logo center-horizontal" height="175"
+                                                     src="/logo.svg" width="450"></a></a>
+
+    <form id="loginForm" method="post" th:action="@{/login}">
+        <div>
+            <input class="input-field center-horizontal" id="username" name="username" placeholder="email" type="email">
+        </div>
+        <div>
+            <input class="input-field center-horizontal" id="password" name="password" placeholder="password"
+                   type="password">
+        </div>
+        <button class="btn-login btn-basic center-horizontal" th:href="@{/home}" type="submit">LOGIN</button>
+    </form>
+
+    <section class="italic-grey-text">
+        <div th:if="${param.error}">
+            Invalid email or password
+        </div>
+        <div th:if="${param.logout}">
+            You have been logged out
+        </div>
+        <div class="alert alert-success" th:if="${redirectionMessage}!=null">
+            <a th:text="${redirectionMessage}"></a>
+        </div>
+    </section>
+    <section class="register-forgot-box italic-info-text">
+        <a class="italic-info-text" th:href="@{/public}">Continue without logging</a>
+    </section>
+</section>
+</body>
+</html>

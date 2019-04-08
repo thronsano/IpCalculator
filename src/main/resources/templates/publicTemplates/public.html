@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>IP Calculator</title>
+    <link href="/styles.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+<body class="login-body">
+<section class="inside-content-box">
+    <a th:fragment="logo"><a th:href="@{/home}"><img alt="IP Calculator" class="logo center-horizontal" height="175"
+                                                     src="/logo.svg" width="450"></a></a>
+    <div class="columnHalfSpace" th:if="${network}!=null">
+        Address range for <label th:text="${network.getNetworkIp()}"></label>:<br><br>
+        Network ip: <label th:text="${network.getNetworkIp()}"></label><br>
+        Address range: <label th:text="${network.getFirstAvailableIp()}"></label> -
+        <label th:text="${network.getLastAvailableIp()}"></label><br>
+        Broadcast ip: <label th:text="${network.getBroadcastIp()}"></label>
+    </div>
+    <br>
+    <br>
+    <form method="get" th:action="@{/public/calculator}">
+        <label for="networkIp"><b>Please input network IP:</b></label>
+        <input id="networkIp" maxlength="15" minlength="7" name="networkIp"
+               pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
+               placeholder="xxx.xxx.xxx.xxx" required
+               size="15" type="text">
+        <br>
+        <label for="networkMask"><b>Please input network mask:</b></label>
+        <input id="networkMask" max="24" min="1" name="networkMask" placeholder="24" required type="number">
+        <br>
+        <button class="btn-login btn-basic center-horizontal" th:href="@{/home}" type="submit">GET ADDRESSES</button>
+    </form>
+</section>
+</body>
+</html>

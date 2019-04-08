@@ -1,0 +1,16 @@
+package com.ipCalculator.MVC.controllers.utils;
+
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import static com.ipCalculator.utility.Logger.logWarning;
+
+public class ErrorHandlerForControllers {
+
+    public static void handleError(ModelAndView modelAndView, RedirectAttributes redirectAttributes, Exception exception) {
+        exception.printStackTrace();
+        logWarning(exception.getMessage());
+        redirectAttributes.addFlashAttribute("error", exception.getMessage());
+        modelAndView.addObject("error", exception.getMessage());
+    }
+}
