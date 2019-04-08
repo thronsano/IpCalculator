@@ -3,32 +3,65 @@
 <head>
     <title>IP Calculator</title>
     <link href="/styles.css" rel="stylesheet" type="text/css">
+    <script src="/fieldVisibility.js" type="text/javascript"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 </head>
 <body class="login-body">
 <section class="inside-content-box">
     <a th:fragment="logo"><a th:href="@{/home}"><img alt="IP Calculator" class="logo center-horizontal" height="175"
                                                      src="/logo.svg" width="450"></a></a>
-    <div class="columnHalfSpace" th:if="${network}!=null">
-        Address range for <label th:text="${network.getNetworkIp()}"></label>:<br><br>
-        Network ip: <label th:text="${network.getNetworkIp()}"></label><br>
-        Address range: <label th:text="${network.getFirstAvailableIp()}"></label> -
-        <label th:text="${network.getLastAvailableIp()}"></label><br>
-        Broadcast ip: <label th:text="${network.getBroadcastIp()}"></label>
-    </div>
-    <br>
-    <br>
-    <form method="get" th:action="@{/public/calculator}">
-        <label for="networkIp"><b>Please input network IP:</b></label>
-        <input id="networkIp" maxlength="15" minlength="7" name="networkIp"
-               pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
-               placeholder="xxx.xxx.xxx.xxx" required
-               size="15" type="text">
+    <form method="get" th:action="@{/public/calculator}" th:fragment="calculator">
+        <div class="row" style="grid-row: 1">
+            <div class="center-horizontal">
+                <label for="networkIp"><b>Please input network IP:</b></label>
+                <input id="networkIp" maxlength="15" minlength="7" name="networkIp"
+                       pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" required
+                       size="15"
+                       th:value="${network != null ? network.getNetworkIp() : '192.168.1.1'}" type="text">
+            </div>
+        </div>
         <br>
-        <label for="networkMask"><b>Please input network mask:</b></label>
-        <input id="networkMask" max="24" min="1" name="networkMask" placeholder="24" required type="number">
+        <div class="row" style="grid-row: 1">
+            <div class="center-horizontal">
+                <label style="font-weight: bold">Create network using:</label><br>
+                <input name="networkType" th:checked="${prevCalculationUsedMask == true ? true : false}"
+                       th:onclick="'java:toggleVisibility(\'maskField\');'"
+                       type="radio"
+                       value="mask">Network mask
+                <input name="networkType" th:checked="${prevCalculationUsedMask == true ? false : true}"
+                       th:onclick="'java:toggleVisibility(\'clientField\');'"
+                       type="radio"
+                       value="clients"> Amount of clients
+            </div>
+        </div>
         <br>
+        <div class="row" style="grid-row: 2">
+            <div class="columnHalfSpace" id="maskField"
+                 th:style="'display:' + ${prevCalculationUsedMask == true ? 'block' : 'none'}">
+                <label for="networkMask"><b>Please input network mask:</b></label><br>
+                <input id="networkMask" max="30" min="1" name="networkMask" placeholder="24"
+                       th:required="${prevCalculationUsedMask == true ? true : false}"
+                       type="number">
+            </div>
+            <br>
+            <div class="columnHalfSpace" id="clientField"
+                 th:style="'display:' + ${prevCalculationUsedMask == true ? 'none' : 'block'}">
+                <label for="clientsAmount"><b>Amount of computers to map:</b></label><br>
+                <input id="clientsAmount" max="999999999" min="1" name="clientsAmount" placeholder="1024"
+                       th:required="${prevCalculationUsedMask == true ? false : true}"
+                       type="number">
+            </div>
+        </div>
         <button class="btn-login btn-basic center-horizontal" th:href="@{/home}" type="submit">GET ADDRESSES</button>
+        <br>
+        <br>
+        <div class="columnHalfSpace" th:if="${network}!=null">
+            Address range for <label th:text="${network.getNetworkIp()}"></label>:<br><br>
+            Network ip: <label th:text="${network.getNetworkIp()}"></label><br>
+            Address range: <label th:text="${network.getFirstAvailableIp()}"></label> -
+            <label th:text="${network.getLastAvailableIp()}"></label><br>
+            Broadcast ip: <label th:text="${network.getBroadcastIp()}"></label>
+        </div>
     </form>
 </section>
 </body>

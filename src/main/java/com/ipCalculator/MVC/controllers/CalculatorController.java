@@ -18,11 +18,23 @@ public class CalculatorController {
 
     @RequestMapping(value = "/calculator", method = GET)
     public ModelAndView getEditUserPage(@RequestParam("networkIp") String networkIp,
-                                        @RequestParam("networkMask") String networkMask,
+                                        @RequestParam(value = "networkMask", required = false, defaultValue = "") String networkMask,
+                                        @RequestParam(value = "clientsAmount", required = false, defaultValue = "") String clientsAmount,
                                         ModelAndView modelAndView) {
-        Network network = calculatorService.getNetwork(networkIp, networkMask);
+        Network network = null;
+        boolean prevCalculationUsedMask = true;
+
+        if (!"".equals(networkMask)) {
+            network = calculatorService.getNetworkByMask(networkIp, networkMask);
+        } else if (!"".equals(clientsAmount)) {
+            prevCalculationUsedMask = false;
+            network = calculatorService.getNetworkByClientsAmount(networkIp, clientsAmount);
+        }
+
         modelAndView.addObject("network", network);
+        modelAndView.addObject("prevCalculationUsedMask", prevCalculationUsedMask);
         modelAndView.setViewName("publicTemplates/public");
+
         return modelAndView;
     }
 }
