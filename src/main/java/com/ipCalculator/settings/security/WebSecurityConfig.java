@@ -29,8 +29,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers(
-                "/",
+        http.authorizeRequests().antMatchers("/",
                 "/*.js",
                 "/styles.css",
                 "/logo.svg",
@@ -38,10 +37,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/public",
                 "/public/*",
                 "/favicon.ico").permitAll()
-                .anyRequest().authenticated().and()
-                .formLogin().loginPage("/login").permitAll().and()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin().loginPage("/login").permitAll()
+                .and()
+                .formLogin().defaultSuccessUrl("/home", true)
+                .and()
                 .logout().permitAll();
-
-        http.formLogin().defaultSuccessUrl("/home", true);
     }
 }
