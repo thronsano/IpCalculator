@@ -36,23 +36,6 @@ public class SettingsController {
         return modelAndView;
     }
 
-
-    @RequestMapping(value = "/editAccountInformation", method = POST)
-    public ModelAndView editUser(@RequestParam("username") String username,
-                                 ModelAndView modelAndView,
-                                 RedirectAttributes redirectAttributes) {
-
-        try {
-            userService.changeUsername(username);
-            redirectAttributes.addFlashAttribute("redirectionMessage", "Information saved!");
-        } catch (Exception e) {
-            handleError(modelAndView, redirectAttributes, e);
-        }
-
-        modelAndView.setViewName("redirect:/settings/editAccountInformation");
-        return modelAndView;
-    }
-
     @RequestMapping(value = "/changePassword", method = POST)
     public ModelAndView changePassword(@RequestParam("currentPassword") String currentPassword,
                                        @RequestParam("newPassword") String newPassword,

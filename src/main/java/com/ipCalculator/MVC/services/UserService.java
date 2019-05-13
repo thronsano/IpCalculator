@@ -4,6 +4,7 @@ import com.ipCalculator.entity.db.User;
 import com.ipCalculator.entity.exceptions.IpCalculatorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
@@ -17,13 +18,6 @@ public class UserService extends PersistenceService<User> {
 
     public User getUserByEmail(String email) {
         return getObjectById("User", email);
-    }
-
-    public void changeUsername(String newUsername) throws IpCalculatorException {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = getUserByEmail(email);
-        user.setUsername(newUsername);
-        persistObject(user);
     }
 
     public void changePassword(String currentPassword, String newPassword, String confirmNewPassword, PasswordEncoder passwordEncoder) throws IpCalculatorException {
@@ -42,6 +36,12 @@ public class UserService extends PersistenceService<User> {
         } else {
             throw new IpCalculatorException("Incorrect password");
         }
+    }
+
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = authentication.getName();
+        return getUserByEmail(currentUserName);
     }
 
     private boolean passwordMatchesDatabase(String email, String password, PasswordEncoder passwordEncoder) {

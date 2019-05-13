@@ -23,12 +23,95 @@
             <div class="error-message" th:text="${error}"></div>
         </section>
     </div>
-    <div class="row" style="grid-row: 2">
-        <div class="columnHalfSpace">
-            <h1 th:inline="text">Logged as [[${#httpServletRequest.remoteUser}]]</h1>
-            <form th:include="publicTemplates/public :: calculator"></form>
+
+    <h1 th:inline="text">Logged as [[${#httpServletRequest.remoteUser}]]</h1>
+    <form class="columnHalfSpace" method="post" th:action="@{/private/calculator}" th:if="${networkTable}!=null">
+        <input hidden name="networkCacheKey" th:value="${networkTable.networkCacheKey}"/>
+        <input class="input-field" id="networkName" name="networkName" placeholder="Network name" required type="text">
+        <button class="btn-login btn-basic" th:href="@{/home}" type="submit">SAVE NETWORK</button>
+        <br><br>
+    </form>
+
+    <form method="get" th:action="@{/private/calculator}" th:fragment="calculator">
+        <div class="columnHalfSpace" th:if="${networkTable}!=null">
+            <table class="networkTable">
+                <tbody>
+                <tr th:each="j: ${#numbers.sequence(0, networkTable.height - 1)}">
+                    <td th:each="i: ${#numbers.sequence(0, networkTable.width - 1)}"
+                        th:text="(${networkTable.table[i][j]} == null) ? '' : ${networkTable.table[i][j]}">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-    </div>
+
+        <br><br>
+        <b>Please input network IP:</b>
+        <div class="row" style="grid-row: 2">
+            <br>
+            <input class="input-field" id="networkIp" maxlength="15" minlength="7"
+                   name="networkIp" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
+                   required size="15"
+                   th:value="${networkTable != null ? networkTable.table[0][1] : '192.168.1.1'}" type="text">
+        </div>
+
+        <br>
+        <h2>Create network using:</h2>
+        <ul>
+            <li>
+                <input name="networkType"
+                       th:checked="${prevCalculationUsedMask == true ? true : false}"
+                       th:onclick="'java:toggleVisibility(\'maskField\');'" type="radio" value="mask">
+                Network mask
+            </li>
+            <li>
+                <input name="networkType"
+                       th:checked="${prevCalculationUsedMask == true ? false : true}"
+                       th:onclick="'java:toggleVisibility(\'clientField\');'" type="radio" value="clients">
+                Amount of clients
+            </li>
+        </ul>
+
+        <br>
+        <div class="row" style="grid-row: 3">
+            <div id="maskField"
+                 th:style="'display:' + ${prevCalculationUsedMask == true ? 'block' : 'none'}">
+                <b>Please input network mask:</b>
+                <input class="input-field" id="networkMask" max="30" min="1" name="networkMask" placeholder="24"
+                       th:required="${prevCalculationUsedMask == true ? true : false}" type="number">
+            </div>
+            <br>
+
+            <div id="clientField"
+                 th:style="'display:' + ${prevCalculationUsedMask == true ? 'none' : 'block'}">
+                <b>Amount of computers to map:</b>
+                <input class="input-field" id="clientsAmount" max="2147483646" min="1" name="clientsAmount"
+                       placeholder="1024" th:required="${prevCalculationUsedMask == true ? false : true}"
+                       type="number">
+            </div>
+
+            <div id="paddingField" th:style="'display:' + ${prevCalculationUsedMask == true ? 'none' : 'block'}">
+                <b style="margin-left: 1rem">Percent of network to be left empty</b>
+                <input class="input-field" max="100" min="0" name="padding" step="0.01" style="margin-left: 1rem"
+                       th:value="0" type="number">
+            </div>
+        </div>
+
+        <button class="btn-login btn-basic" th:href="@{/home}" type="submit">GET ADDRESSES</button>
+
+        <div class="columnHalfSpace" th:if="${previousNetworks}!=null">
+            <h1>PREVIOUS NETWORKS:</h1>
+            <table class="networkTable">
+                <tbody>
+                <tr th:each="j: ${#numbers.sequence(0, previousNetworks.height - 1)}">
+                    <td th:each="i: ${#numbers.sequence(0, previousNetworks.width - 1)}"
+                        th:text="(${previousNetworks.table[i][j]} == null) ? '' : ${previousNetworks.table[i][j]}">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
 </section>
 </body>
 </html>

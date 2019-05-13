@@ -18,17 +18,6 @@
     </div>
     <div class="row" style="grid-row: 2">
         <div class="columnHalfSpace">
-            <h2>Edit name</h2>
-            <form method="post" th:action="@{/settings/editAccountInformation}">
-                Name:
-                <div><input class="input-field" name="username" placeholder="Name" th:value="${user.username}"
-                            type="text"/>
-                </div>
-                <button class="btn-login btn-basic" type="submit">SAVE</button>
-            </form>
-        </div>
-
-        <div class="columnHalfSpace">
             <h2>Change password</h2>
             <form method="post" th:action="@{/settings/changePassword}">
                 Current password:
