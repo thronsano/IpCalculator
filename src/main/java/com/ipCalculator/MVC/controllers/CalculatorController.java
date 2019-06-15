@@ -17,7 +17,7 @@ public class CalculatorController {
     CalculatorService calculatorService;
 
     @RequestMapping(value = "public/calculator", method = GET)
-    public ModelAndView getPublicCalculations(@RequestParam("networkIp") String networkIp,
+    public ModelAndView getPublicCalculations(@RequestParam("networkAddress") String networkAddress,
                                               @RequestParam(value = "networkMask", required = false, defaultValue = "") String networkMask,
                                               @RequestParam(value = "clientsAmount", required = false, defaultValue = "") String clientsAmount,
                                               ModelAndView modelAndView) {
@@ -25,10 +25,10 @@ public class CalculatorController {
         boolean prevCalculationUsedMask = true;
 
         if (!"".equals(networkMask)) {
-            network = calculatorService.getNetworkByMask(networkIp, networkMask);
+            network = calculatorService.getNetworkByMask(networkAddress, networkMask);
         } else if (!"".equals(clientsAmount)) {
             prevCalculationUsedMask = false;
-            network = calculatorService.getNetworkByClientsAmount(networkIp, clientsAmount, "0");
+            network = calculatorService.getNetworkByClientsAmount(networkAddress, clientsAmount, "0");
         }
 
         modelAndView.addObject("network", network);
@@ -38,7 +38,7 @@ public class CalculatorController {
     }
 
     @RequestMapping(value = "private/calculator", method = GET)
-    public ModelAndView getPrivateCalculations(@RequestParam("networkIp") String networkIp,
+    public ModelAndView getPrivateCalculations(@RequestParam("networkAddress") String networkAddress,
                                                @RequestParam(value = "networkMask", required = false, defaultValue = "") String networkMask,
                                                @RequestParam(value = "clientsAmount", required = false, defaultValue = "") String clientsAmount,
                                                @RequestParam(value = "padding", required = false, defaultValue = "0") String padding,
@@ -48,10 +48,10 @@ public class CalculatorController {
         boolean prevCalculationUsedMask = true;
 
         if (!"".equals(networkMask)) {
-            network = calculatorService.getNetworkByMask(networkIp, networkMask);
+            network = calculatorService.getNetworkByMask(networkAddress, networkMask);
         } else if (!"".equals(clientsAmount)) {
             prevCalculationUsedMask = false;
-            network = calculatorService.getNetworkByClientsAmount(networkIp, clientsAmount, padding);
+            network = calculatorService.getNetworkByClientsAmount(networkAddress, clientsAmount, padding);
         }
 
         modelAndView.addObject("network", network);

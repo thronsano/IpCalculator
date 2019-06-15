@@ -46,7 +46,7 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td th:text="${network.networkIp}"></td>
+                    <td th:text="${network.networkAddress}"></td>
                     <td th:text="${network.subnetMask}"></td>
                     <td th:text="${network.routerIp}"></td>
                     <td th:text="${network.broadcastIp}"></td>
@@ -63,9 +63,9 @@
         <b>Please input network IP:</b>
         <div class="row" style="grid-row: 2">
             <br>
-            <input class="input-field" id="networkIp" maxlength="15" minlength="7" name="networkIp"
+            <input class="input-field" id="networkAddress" maxlength="15" minlength="7" name="networkAddress"
                    pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" required
-                   size="15" th:value="${network != null ? network.networkIp : '192.168.1.1'}" type="text">
+                   size="15" th:value="${network != null ? network.networkAddress : '192.168.1.1'}" type="text">
         </div>
 
         <br>
@@ -129,7 +129,7 @@
             <tbody>
             <tr th:each="network : ${previousNetworks}">
                 <td th:text="${network.name}"></td>
-                <td th:text="${network.networkIp}"></td>
+                <td th:text="${network.networkAddress}"></td>
                 <td th:text="${network.subnetMask}"></td>
                 <td th:text="${network.routerIp}"></td>
                 <td th:text="${network.broadcastIp}"></td>

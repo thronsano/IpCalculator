@@ -13,8 +13,8 @@ public class NetworkBuilder {
         return this;
     }
 
-    public NetworkBuilder setNetworkIp(String networkIp) {
-        network.setNetworkIp(networkIp);
+    public NetworkBuilder setNetworkAddress(String networkAddress) {
+        network.setNetworkAddress(networkAddress);
         return this;
     }
 

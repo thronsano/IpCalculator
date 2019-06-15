@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.ipCalculator.MVC.services.CacheService.networkCache;
+import static com.ipCalculator.utility.IpUtils.networksOverlap;
 import static java.lang.Integer.parseInt;
 
 @Repository
@@ -21,17 +22,17 @@ public class CalculatorService extends PersistenceService<Network> {
     @Autowired
     UserService userService;
 
-    public Network getNetworkByMask(String networkIp, String networkMask) {
-        return createNetwork(networkIp, networkMask);
+    public Network getNetworkByMask(String networkAddress, String networkMask) {
+        return createNetwork(networkAddress, networkMask);
     }
 
-    public Network getNetworkByClientsAmount(String networkIp, String clientsAmountString, String paddingString) {
+    public Network getNetworkByClientsAmount(String networkAddress, String clientsAmountString, String paddingString) {
         int padding = Integer.valueOf(paddingString);
         int clientsAmount = Integer.valueOf(clientsAmountString);
 
         String networkMask = calculateMinimumMask(clientsAmount + (int) Math.ceil(clientsAmount * padding / 100.0));
 
-        return createNetwork(networkIp, networkMask);
+        return createNetwork(networkAddress, networkMask);
     }
 
     private String calculateMinimumMask(int clientsAmount) {
@@ -39,10 +40,18 @@ public class CalculatorService extends PersistenceService<Network> {
         return String.valueOf(hostBits);
     }
 
-    private Network createNetwork(String networkIp, String networkMask) {
-        SubnetInfo networkInfo = new SubnetUtils(networkIp + "/" + networkMask).getInfo();
+    private Network createNetwork(String networkAddress, String networkMask) {
+        List<Network> allNetworks = getAllObjects("Network");
+        String cidrNotation = networkAddress + "/" + networkMask;
+        boolean collides = allNetworks.stream().anyMatch(network -> networksOverlap(network.getCidrAddress(), networkAddress + "/" + networkMask));
+
+        if (collides) {
+            cidrNotation = getNonCollidingCidr(cidrNotation, allNetworks);
+        }
+
+        SubnetInfo networkInfo = new SubnetUtils(cidrNotation).getInfo();
         Network network = new NetworkBuilder()
-                .setNetworkIp(networkInfo.getNetworkAddress())
+                .setNetworkAddress(networkInfo.getNetworkAddress())
                 .setBroadcastIp(networkInfo.getBroadcastAddress())
                 .setIpRange(networkInfo.getLowAddress(), networkInfo.getHighAddress())
                 .setAddressesAmount(networkInfo.getAddressCountLong())
@@ -52,6 +61,11 @@ public class CalculatorService extends PersistenceService<Network> {
         networkCache.put(networkCacheKey, network);
         network.setNetworkCacheKey(networkCacheKey);
         return network;
+    }
+
+    //TODO: implement collision avoidance
+    private String getNonCollidingCidr(String networkCidr, List<Network> allNetworks) {
+        return networkCidr;
     }
 
     public void saveNetwork(String networkCacheKey, String networkName) {

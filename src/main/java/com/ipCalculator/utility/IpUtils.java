@@ -1,5 +1,9 @@
 package com.ipCalculator.utility;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,6 +33,21 @@ public class IpUtils {
             return true;
         }
         segments.get(i).set(0);
+        return false;
+    }
+
+    public static boolean networksOverlap(String firstNetworkCidr, String secondNetworkCidr) {
+        try {
+            File file = new File("src\\main\\resources\\collides.py");
+            String pathToScript = file.getAbsolutePath();
+            Process p = Runtime.getRuntime().exec(String.format("python %s %s %s", pathToScript, firstNetworkCidr, secondNetworkCidr));
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                String line = reader.readLine();
+                return "True".equals(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 }

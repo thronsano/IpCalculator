@@ -1,5 +1,7 @@
 package com.ipCalculator.entity.db;
 
+import org.apache.commons.net.util.SubnetUtils;
+
 import javax.persistence.*;
 
 @Entity
@@ -14,7 +16,7 @@ public class Network {
     private String addressesAmount;
 
     @Column
-    private String networkIp;
+    private String networkAddress;
 
     @Column
     private String broadcastIp;
@@ -40,11 +42,12 @@ public class Network {
     public Network() {
     }
 
-    public Network(String addressesAmount, String networkIp, String broadcastIp, String routerIp, String firstAvailableIp, String lastAvailableIp) {
+    public Network(String addressesAmount, String networkAddress, String broadcastIp, String routerIp, String firstAvailableIp, String lastAvailableIp) {
         this.addressesAmount = addressesAmount;
-        this.networkIp = networkIp;
+        this.networkAddress = networkAddress;
         this.broadcastIp = broadcastIp;
         this.routerIp = routerIp;
+        this.firstAvailableIp = firstAvailableIp;
         this.lastAvailableIp = lastAvailableIp;
     }
 
@@ -64,12 +67,12 @@ public class Network {
         this.addressesAmount = addressesAmount;
     }
 
-    public String getNetworkIp() {
-        return networkIp;
+    public String getNetworkAddress() {
+        return networkAddress;
     }
 
-    public void setNetworkIp(String networkIp) {
-        this.networkIp = networkIp;
+    public void setNetworkAddress(String networkAddress) {
+        this.networkAddress = networkAddress;
     }
 
     public String getBroadcastIp() {
@@ -126,5 +129,9 @@ public class Network {
 
     public void setNetworkCacheKey(String networkCacheKey) {
         this.networkCacheKey = networkCacheKey;
+    }
+
+    public String getCidrAddress() {
+        return new SubnetUtils(networkAddress, subnetMask).getInfo().getCidrSignature();
     }
 }

@@ -22,7 +22,7 @@ CREATE TABLE network
 (
     id               INT PRIMARY KEY AUTO_INCREMENT,
     addressesAmount  VARCHAR(255) NOT NULL,
-    networkIp        VARCHAR(255) NOT NULL,
+    networkAddress   VARCHAR(255) NOT NULL,
     broadcastIp      VARCHAR(255) NOT NULL,
     routerIp         VARCHAR(255) NOT NULL,
     firstAvailableIp VARCHAR(255) NOT NULL,
