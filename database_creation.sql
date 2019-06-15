@@ -20,14 +20,15 @@ create table authorities
 
 CREATE TABLE network
 (
-    id              INT PRIMARY KEY AUTO_INCREMENT,
-    addressesAmount VARCHAR(255) NOT NULL,
-    networkIp       VARCHAR(255) NOT NULL,
-    broadcastIp     VARCHAR(255) NOT NULL,
-    routerIp        VARCHAR(255) NOT NULL,
-    lastAvailableIp VARCHAR(255) NOT NULL,
-    subnetMask      VARCHAR(255) NOT NULL,
-    name            VARCHAR(255) NOT NULL
+    id               INT PRIMARY KEY AUTO_INCREMENT,
+    addressesAmount  VARCHAR(255) NOT NULL,
+    networkIp        VARCHAR(255) NOT NULL,
+    broadcastIp      VARCHAR(255) NOT NULL,
+    routerIp         VARCHAR(255) NOT NULL,
+    firstAvailableIp VARCHAR(255) NOT NULL,
+    lastAvailableIp  VARCHAR(255) NOT NULL,
+    subnetMask       VARCHAR(255) NOT NULL,
+    name             VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE users_network

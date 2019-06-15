@@ -1,12 +1,14 @@
 package com.ipCalculator.entity.builders;
 
 import com.ipCalculator.entity.db.Network;
+import com.ipCalculator.utility.IpUtils;
 
 public class NetworkBuilder {
     Network network = new Network();
 
-    public NetworkBuilder setIpRange(String routerIp, String lastAvailableIp) {
-        network.setRouterIp(routerIp);
+    public NetworkBuilder setIpRange(String firstAvailableIp, String lastAvailableIp) {
+        network.setRouterIp(firstAvailableIp);
+        network.setFirstAvailableIp(IpUtils.incrementByOne(firstAvailableIp));
         network.setLastAvailableIp(lastAvailableIp);
         return this;
     }

@@ -23,6 +23,9 @@ public class Network {
     private String routerIp;
 
     @Column
+    private String firstAvailableIp;
+
+    @Column
     private String lastAvailableIp;
 
     @Column
@@ -37,7 +40,7 @@ public class Network {
     public Network() {
     }
 
-    public Network(String addressesAmount, String networkIp, String broadcastIp, String routerIp, String lastAvailableIp) {
+    public Network(String addressesAmount, String networkIp, String broadcastIp, String routerIp, String firstAvailableIp, String lastAvailableIp) {
         this.addressesAmount = addressesAmount;
         this.networkIp = networkIp;
         this.broadcastIp = broadcastIp;
@@ -83,6 +86,14 @@ public class Network {
 
     public void setRouterIp(String routerIp) {
         this.routerIp = routerIp;
+    }
+
+    public String getFirstAvailableIp() {
+        return firstAvailableIp;
+    }
+
+    public void setFirstAvailableIp(String firstAvailableIp) {
+        this.firstAvailableIp = firstAvailableIp;
     }
 
     public String getLastAvailableIp() {

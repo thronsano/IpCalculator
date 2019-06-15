@@ -51,7 +51,7 @@
                     <td th:text="${network.routerIp}"></td>
                     <td th:text="${network.broadcastIp}"></td>
                     <td th:text="${network.addressesAmount}"></td>
-                    <td th:text="${network.routerIp}"></td>
+                    <td th:text="${network.firstAvailableIp}"></td>
                     <td th:text="${network.lastAvailableIp}"></td>
                 </tr>
                 </tbody>
@@ -134,7 +134,7 @@
                 <td th:text="${network.routerIp}"></td>
                 <td th:text="${network.broadcastIp}"></td>
                 <td th:text="${network.addressesAmount}"></td>
-                <td th:text="${network.routerIp}"></td>
+                <td th:text="${network.firstAvailableIp}"></td>
                 <td th:text="${network.lastAvailableIp}"></td>
                 <td>
                     <form method="post" th:action="@{/private/deleteNetwork}">
