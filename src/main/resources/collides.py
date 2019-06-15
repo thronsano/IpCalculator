@@ -1,6 +1,6 @@
-import ipaddr
+import ipaddress
 import sys
 
-networkOne = ipaddr.IPNetwork(sys.argv[1])
-networkTwo = ipaddr.IPNetwork(sys.argv[2])
+networkOne = ipaddress.ip_network(sys.argv[1])
+networkTwo = ipaddress.ip_network(sys.argv[2])
 print(networkOne.overlaps(networkTwo))

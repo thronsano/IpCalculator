@@ -25,15 +25,15 @@
     </div>
 
     <h1 th:inline="text">Logged as [[${#httpServletRequest.remoteUser}]]</h1>
-    <form class="columnHalfSpace" method="post" th:action="@{/private/calculator}" th:if="${network}!=null">
-        <input hidden name="networkCacheKey" th:value="${network.networkCacheKey}"/>
+    <form class="columnHalfSpace" method="post" th:action="@{/private/calculator}" th:if="${networkList}!=null">
+        <input hidden name="networkCacheKey" th:value="${networkList[0].networkCacheKey}"/>
         <input class="input-field" id="networkName" name="networkName" placeholder="Network name" required type="text">
-        <button class="btn-login btn-basic" th:href="@{/home}" type="submit">SAVE NETWORK</button>
+        <button class="btn-login btn-basic" th:href="@{/home}" type="submit">SAVE NETWORKS</button>
         <br><br>
     </form>
 
     <form method="get" th:action="@{/private/calculator}" th:fragment="calculator">
-        <div class="columnHalfSpace" th:if="${network}!=null">
+        <div class="columnHalfSpace" th:if="${networkList}!=null">
             <table class="networkTable">
                 <thead>
                 <th>Network IP</th>
@@ -45,7 +45,7 @@
                 <th>Available addresses end</th>
                 </thead>
                 <tbody>
-                <tr>
+                <tr th:each="network : ${networkList}">
                     <td th:text="${network.networkAddress}"></td>
                     <td th:text="${network.subnetMask}"></td>
                     <td th:text="${network.routerIp}"></td>
@@ -65,7 +65,8 @@
             <br>
             <input class="input-field" id="networkAddress" maxlength="15" minlength="7" name="networkAddress"
                    pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" required
-                   size="15" th:value="${network != null ? network.networkAddress : '192.168.1.1'}" type="text">
+                   size="15" th:value="${networkList != null ? networkList[0].networkAddress : '192.168.1.1'}"
+                   type="text">
         </div>
 
         <br>
@@ -109,6 +110,9 @@
                        th:value="0" type="number">
             </div>
         </div>
+
+        <b>Divide to x subnets:</b>
+        <input class="input-field" id="subnetAmount" max="30" min="1" name="subnetAmount" placeholder="1" type="number">
 
         <button class="btn-login btn-basic" th:href="@{/home}" type="submit">GET ADDRESSES</button>
     </form>

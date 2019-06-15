@@ -1,10 +1,13 @@
 package com.ipCalculator.utility;
 
+import com.google.common.collect.ImmutableList;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -38,10 +41,8 @@ public class IpUtils {
 
     public static boolean networksOverlap(String firstNetworkCidr, String secondNetworkCidr) {
         try {
-            File file = new File("src\\main\\resources\\collides.py");
-            String pathToScript = file.getAbsolutePath();
-            Process p = Runtime.getRuntime().exec(String.format("python %s %s %s", pathToScript, firstNetworkCidr, secondNetworkCidr));
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+            String parameters = String.format("%s %s", firstNetworkCidr, secondNetworkCidr);
+            try (BufferedReader reader = getCommandExecutionResultsReader("collides.py", parameters)) {
                 String line = reader.readLine();
                 return "True".equals(line);
             }
@@ -50,4 +51,37 @@ public class IpUtils {
         }
         return false;
     }
+
+    public static List<String> divideNetworkToSubnets(String networkCidr, int targetAmount) {
+        if (targetAmount == 1) {
+            return ImmutableList.of(networkCidr);
+        }
+        try {
+            int divider = getDivider(targetAmount);
+            String parameters = String.format("%s %d", networkCidr, divider);
+            try (BufferedReader reader = getCommandExecutionResultsReader("subnet.py", parameters)) {
+                return reader.lines().collect(Collectors.toList());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
+    private static int getDivider(int targetAmount) {
+        for (int i = 0; i < 10; i++) {
+            if (targetAmount <= Math.pow(2, i)) {
+                return i;
+            }
+        }
+        throw new ArithmeticException("Cannot divide subnet more than 10 times!");
+    }
+
+    private static BufferedReader getCommandExecutionResultsReader(String filename, String parameters) throws IOException {
+        File file = new File(String.format("src\\main\\resources\\%s", filename));
+        String pathToScript = file.getAbsolutePath();
+        Process p = Runtime.getRuntime().exec(String.format("python %s %s", pathToScript, parameters));
+        return new BufferedReader(new InputStreamReader(p.getInputStream()));
+    }
+
 }

@@ -12,7 +12,7 @@
                                                      src="/logo.svg" width="450"></a></a>
 
     <form method="get" th:action="@{/public/calculator}" th:fragment="calculator">
-        <div class="columnHalfSpace" th:if="${network}!=null">
+        <div class="columnHalfSpace" th:if="${networkList}!=null">
             <table class="networkTable">
                 <thead>
                 <th>Network IP</th>
@@ -25,13 +25,13 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td th:text="${network.networkAddress}"></td>
-                    <td th:text="${network.subnetMask}"></td>
-                    <td th:text="${network.routerIp}"></td>
-                    <td th:text="${network.broadcastIp}"></td>
-                    <td th:text="${network.addressesAmount}"></td>
-                    <td th:text="${network.firstAvailableIp}"></td>
-                    <td th:text="${network.lastAvailableIp}"></td>
+                    <td th:text="${networkList[0].networkAddress}"></td>
+                    <td th:text="${networkList[0].subnetMask}"></td>
+                    <td th:text="${networkList[0].routerIp}"></td>
+                    <td th:text="${networkList[0].broadcastIp}"></td>
+                    <td th:text="${networkList[0].addressesAmount}"></td>
+                    <td th:text="${networkList[0].firstAvailableIp}"></td>
+                    <td th:text="${networkList[0].lastAvailableIp}"></td>
                 </tr>
                 </tbody>
                 <tbody>
@@ -45,7 +45,8 @@
                 <h2>Please input network IP:</h2>
                 <input class="input-field" id="networkAddress" maxlength="15" minlength="7" name="networkAddress"
                        pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" required
-                       size="15" th:value="${network != null ? network.networkAddress : '192.168.1.1'}" type="text">
+                       size="15" th:value="${networkList != null ? networkList[0].networkAddress : '192.168.1.1'}"
+                       type="text">
             </div>
         </div>
 

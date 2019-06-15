@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -21,17 +23,17 @@ public class CalculatorController {
                                               @RequestParam(value = "networkMask", required = false, defaultValue = "") String networkMask,
                                               @RequestParam(value = "clientsAmount", required = false, defaultValue = "") String clientsAmount,
                                               ModelAndView modelAndView) {
-        Network network = null;
+        List<Network> networkList = null;
         boolean prevCalculationUsedMask = true;
 
         if (!"".equals(networkMask)) {
-            network = calculatorService.getNetworkByMask(networkAddress, networkMask);
+            networkList = calculatorService.createNetworkUsingMask(networkAddress, networkMask, "1");
         } else if (!"".equals(clientsAmount)) {
             prevCalculationUsedMask = false;
-            network = calculatorService.getNetworkByClientsAmount(networkAddress, clientsAmount, "0");
+            networkList = calculatorService.createNetworkUsingClientsAmount(networkAddress, clientsAmount, "0", "1");
         }
 
-        modelAndView.addObject("network", network);
+        modelAndView.addObject("networkList", networkList);
         modelAndView.addObject("prevCalculationUsedMask", prevCalculationUsedMask);
         modelAndView.setViewName("publicTemplates/public");
         return modelAndView;
@@ -41,20 +43,22 @@ public class CalculatorController {
     public ModelAndView getPrivateCalculations(@RequestParam("networkAddress") String networkAddress,
                                                @RequestParam(value = "networkMask", required = false, defaultValue = "") String networkMask,
                                                @RequestParam(value = "clientsAmount", required = false, defaultValue = "") String clientsAmount,
+                                               @RequestParam(value = "subnetAmount", required = false, defaultValue = "1") String subnetAmount,
                                                @RequestParam(value = "padding", required = false, defaultValue = "0") String padding,
                                                ModelAndView modelAndView) {
         modelAndView.addObject("previousNetworks", calculatorService.getPreviousNetworks());
-        Network network = null;
+        List<Network> networkList = null;
         boolean prevCalculationUsedMask = true;
 
         if (!"".equals(networkMask)) {
-            network = calculatorService.getNetworkByMask(networkAddress, networkMask);
+            networkList = calculatorService.createNetworkUsingMask(networkAddress, networkMask, subnetAmount);
         } else if (!"".equals(clientsAmount)) {
             prevCalculationUsedMask = false;
-            network = calculatorService.getNetworkByClientsAmount(networkAddress, clientsAmount, padding);
+            networkList = calculatorService.createNetworkUsingClientsAmount(networkAddress, clientsAmount, padding, subnetAmount);
         }
 
-        modelAndView.addObject("network", network);
+        modelAndView.addObject("networkList", networkList);
+        modelAndView.addObject("subnetAmount", networkList);
         modelAndView.addObject("prevCalculationUsedMask", prevCalculationUsedMask);
         modelAndView.setViewName("home");
         return modelAndView;
@@ -64,7 +68,7 @@ public class CalculatorController {
     public ModelAndView saveNetwork(@RequestParam("networkCacheKey") String networkCacheKey,
                                     @RequestParam("networkName") String networkName,
                                     ModelAndView modelAndView) {
-        calculatorService.saveNetwork(networkCacheKey, networkName);
+        calculatorService.saveNetworks(networkCacheKey, networkName);
         modelAndView.addObject("previousNetworks", calculatorService.getPreviousNetworks());
         modelAndView.setViewName("home");
         return modelAndView;
