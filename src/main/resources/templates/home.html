@@ -25,23 +25,37 @@
     </div>
 
     <h1 th:inline="text">Logged as [[${#httpServletRequest.remoteUser}]]</h1>
-    <form class="columnHalfSpace" method="post" th:action="@{/private/calculator}" th:if="${networkTable}!=null">
-        <input hidden name="networkCacheKey" th:value="${networkTable.networkCacheKey}"/>
+    <form class="columnHalfSpace" method="post" th:action="@{/private/calculator}" th:if="${network}!=null">
+        <input hidden name="networkCacheKey" th:value="${network.networkCacheKey}"/>
         <input class="input-field" id="networkName" name="networkName" placeholder="Network name" required type="text">
         <button class="btn-login btn-basic" th:href="@{/home}" type="submit">SAVE NETWORK</button>
         <br><br>
     </form>
 
     <form method="get" th:action="@{/private/calculator}" th:fragment="calculator">
-        <div class="columnHalfSpace" th:if="${networkTable}!=null">
+        <div class="columnHalfSpace" th:if="${network}!=null">
             <table class="networkTable">
+                <thead>
+                <th>Network IP</th>
+                <th>Subnet mask</th>
+                <th>Router IP</th>
+                <th>Broadcast IP</th>
+                <th>Available addresses</th>
+                <th>Available addresses start</th>
+                <th>Available addresses end</th>
+                </thead>
                 <tbody>
-                <tr th:each="j: ${#numbers.sequence(0, networkTable.height - 1)}">
-                    <td th:each="i: ${#numbers.sequence(0, networkTable.width - 1)}"
-                        th:text="(${networkTable.table[i][j]} == null) ? '' : ${networkTable.table[i][j]}">
-                    </td>
+                <tr>
+                    <td th:text="${network.networkIp}"></td>
+                    <td th:text="${network.subnetMask}"></td>
+                    <td th:text="${network.routerIp}"></td>
+                    <td th:text="${network.broadcastIp}"></td>
+                    <td th:text="${network.addressesAmount}"></td>
+                    <td th:text="${network.routerIp}"></td>
+                    <td th:text="${network.lastAvailableIp}"></td>
                 </tr>
                 </tbody>
+                <tbody>
             </table>
         </div>
 
@@ -49,10 +63,9 @@
         <b>Please input network IP:</b>
         <div class="row" style="grid-row: 2">
             <br>
-            <input class="input-field" id="networkIp" maxlength="15" minlength="7"
-                   name="networkIp" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
-                   required size="15"
-                   th:value="${networkTable != null ? networkTable.table[0][1] : '192.168.1.1'}" type="text">
+            <input class="input-field" id="networkIp" maxlength="15" minlength="7" name="networkIp"
+                   pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" required
+                   size="15" th:value="${network != null ? network.networkIp : '192.168.1.1'}" type="text">
         </div>
 
         <br>
@@ -98,20 +111,41 @@
         </div>
 
         <button class="btn-login btn-basic" th:href="@{/home}" type="submit">GET ADDRESSES</button>
-
-        <div class="columnHalfSpace" th:if="${previousNetworks}!=null">
-            <h1>PREVIOUS NETWORKS:</h1>
-            <table class="networkTable">
-                <tbody>
-                <tr th:each="j: ${#numbers.sequence(0, previousNetworks.height - 1)}">
-                    <td th:each="i: ${#numbers.sequence(0, previousNetworks.width - 1)}"
-                        th:text="(${previousNetworks.table[i][j]} == null) ? '' : ${previousNetworks.table[i][j]}">
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
     </form>
+
+    <div class="columnHalfSpace" th:if="${previousNetworks}!=null">
+        <h1>PREVIOUS NETWORKS:</h1>
+        <table class="networkTable">
+            <thead>
+            <th>Network name</th>
+            <th>Network IP</th>
+            <th>Subnet mask</th>
+            <th>Router IP</th>
+            <th>Broadcast IP</th>
+            <th>Available addresses</th>
+            <th>Available addresses start</th>
+            <th>Available addresses end</th>
+            </thead>
+            <tbody>
+            <tr th:each="network : ${previousNetworks}">
+                <td th:text="${network.name}"></td>
+                <td th:text="${network.networkIp}"></td>
+                <td th:text="${network.subnetMask}"></td>
+                <td th:text="${network.routerIp}"></td>
+                <td th:text="${network.broadcastIp}"></td>
+                <td th:text="${network.addressesAmount}"></td>
+                <td th:text="${network.routerIp}"></td>
+                <td th:text="${network.lastAvailableIp}"></td>
+                <td>
+                    <form method="post" th:action="@{/private/deleteNetwork}">
+                        <input hidden name="networkId" th:value="${network.id}"/>
+                        <button th:href="@{/home}" type="submit">DELETE</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </section>
 </body>
 </html>

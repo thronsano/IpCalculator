@@ -1,7 +1,7 @@
 package com.ipCalculator.MVC.controllers;
 
 import com.ipCalculator.MVC.services.CalculatorService;
-import com.ipCalculator.entity.model.NetworkTable;
+import com.ipCalculator.entity.db.Network;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,17 +21,17 @@ public class CalculatorController {
                                               @RequestParam(value = "networkMask", required = false, defaultValue = "") String networkMask,
                                               @RequestParam(value = "clientsAmount", required = false, defaultValue = "") String clientsAmount,
                                               ModelAndView modelAndView) {
-        NetworkTable networkTable = null;
+        Network network = null;
         boolean prevCalculationUsedMask = true;
 
         if (!"".equals(networkMask)) {
-            networkTable = calculatorService.getNetworkByMask(networkIp, networkMask);
+            network = calculatorService.getNetworkByMask(networkIp, networkMask);
         } else if (!"".equals(clientsAmount)) {
             prevCalculationUsedMask = false;
-            networkTable = calculatorService.getNetworkByClientsAmount(networkIp, clientsAmount, "0");
+            network = calculatorService.getNetworkByClientsAmount(networkIp, clientsAmount, "0");
         }
 
-        modelAndView.addObject("networkTable", networkTable);
+        modelAndView.addObject("network", network);
         modelAndView.addObject("prevCalculationUsedMask", prevCalculationUsedMask);
         modelAndView.setViewName("publicTemplates/public");
         return modelAndView;
@@ -44,17 +44,17 @@ public class CalculatorController {
                                                @RequestParam(value = "padding", required = false, defaultValue = "0") String padding,
                                                ModelAndView modelAndView) {
         modelAndView.addObject("previousNetworks", calculatorService.getPreviousNetworks());
-        NetworkTable networkTable = null;
+        Network network = null;
         boolean prevCalculationUsedMask = true;
 
         if (!"".equals(networkMask)) {
-            networkTable = calculatorService.getNetworkByMask(networkIp, networkMask);
+            network = calculatorService.getNetworkByMask(networkIp, networkMask);
         } else if (!"".equals(clientsAmount)) {
             prevCalculationUsedMask = false;
-            networkTable = calculatorService.getNetworkByClientsAmount(networkIp, clientsAmount, padding);
+            network = calculatorService.getNetworkByClientsAmount(networkIp, clientsAmount, padding);
         }
 
-        modelAndView.addObject("networkTable", networkTable);
+        modelAndView.addObject("network", network);
         modelAndView.addObject("prevCalculationUsedMask", prevCalculationUsedMask);
         modelAndView.setViewName("home");
         return modelAndView;
@@ -65,6 +65,15 @@ public class CalculatorController {
                                     @RequestParam("networkName") String networkName,
                                     ModelAndView modelAndView) {
         calculatorService.saveNetwork(networkCacheKey, networkName);
+        modelAndView.addObject("previousNetworks", calculatorService.getPreviousNetworks());
+        modelAndView.setViewName("home");
+        return modelAndView;
+    }
+
+    @RequestMapping(value = "private/deleteNetwork", method = POST)
+    public ModelAndView saveNetwork(@RequestParam("networkId") String networkId,
+                                    ModelAndView modelAndView) {
+        calculatorService.deleteNetwork(networkId);
         modelAndView.addObject("previousNetworks", calculatorService.getPreviousNetworks());
         modelAndView.setViewName("home");
         return modelAndView;

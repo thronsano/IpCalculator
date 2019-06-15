@@ -1,9 +1,9 @@
 package com.ipCalculator.MVC.services;
 
+import com.ipCalculator.entity.builders.NetworkBuilder;
 import com.ipCalculator.entity.db.Network;
 import com.ipCalculator.entity.db.User;
 import com.ipCalculator.entity.exceptions.IpCalculatorException;
-import com.ipCalculator.entity.model.NetworkTable;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.ipCalculator.MVC.services.CacheService.networkCache;
+import static java.lang.Integer.parseInt;
 
 @Repository
 public class CalculatorService extends PersistenceService<Network> {
@@ -20,11 +21,11 @@ public class CalculatorService extends PersistenceService<Network> {
     @Autowired
     UserService userService;
 
-    public NetworkTable getNetworkByMask(String networkIp, String networkMask) {
+    public Network getNetworkByMask(String networkIp, String networkMask) {
         return createNetwork(networkIp, networkMask);
     }
 
-    public NetworkTable getNetworkByClientsAmount(String networkIp, String clientsAmountString, String paddingString) {
+    public Network getNetworkByClientsAmount(String networkIp, String clientsAmountString, String paddingString) {
         int padding = Integer.valueOf(paddingString);
         int clientsAmount = Integer.valueOf(clientsAmountString);
 
@@ -38,18 +39,19 @@ public class CalculatorService extends PersistenceService<Network> {
         return String.valueOf(hostBits);
     }
 
-    private NetworkTable createNetwork(String networkIp, String networkMask) {
+    private Network createNetwork(String networkIp, String networkMask) {
         SubnetInfo networkInfo = new SubnetUtils(networkIp + "/" + networkMask).getInfo();
-        Network network = new Network()
-                .setNetworkIpBuilder(networkInfo.getNetworkAddress())
-                .setBroadcastIpBuilder(networkInfo.getBroadcastAddress())
-                .setIpRangeBuilder(networkInfo.getLowAddress(), networkInfo.getHighAddress())
-                .setAddressesAmountBuilder(networkInfo.getAddressCountLong())
-                .setSubnetMaskBuilder(networkInfo.getNetmask());
+        Network network = new NetworkBuilder()
+                .setNetworkIp(networkInfo.getNetworkAddress())
+                .setBroadcastIp(networkInfo.getBroadcastAddress())
+                .setIpRange(networkInfo.getLowAddress(), networkInfo.getHighAddress())
+                .setAddressesAmount(networkInfo.getAddressCountLong())
+                .setSubnetMask(networkInfo.getNetmask())
+                .build();
         String networkCacheKey = UUID.randomUUID().toString();
         networkCache.put(networkCacheKey, network);
-
-        return new NetworkTable(networkCacheKey, network);
+        network.setNetworkCacheKey(networkCacheKey);
+        return network;
     }
 
     public void saveNetwork(String networkCacheKey, String networkName) {
@@ -65,14 +67,18 @@ public class CalculatorService extends PersistenceService<Network> {
         }
     }
 
-    public NetworkTable getPreviousNetworks() {
+    public List<Network> getPreviousNetworks() {
         User user = userService.getCurrentUser();
         List<Network> networks = user.getSortedNetworks();
 
         if (networks.size() > 0) {
-            return new NetworkTable(networks);
+            return networks;
         } else {
             return null;
         }
+    }
+
+    public void deleteNetwork(String networkId) {
+        deleteObjectById("Network", parseInt(networkId));
     }
 }

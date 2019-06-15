@@ -31,6 +31,9 @@ public class Network {
     @Column
     private String name;
 
+    @Transient
+    private String networkCacheKey;
+
     public Network() {
     }
 
@@ -106,29 +109,11 @@ public class Network {
         this.subnetMask = subnetMask;
     }
 
-    public Network setIpRangeBuilder(String routerIp, String lastAvailableIp) {
-        this.routerIp = routerIp;
-        this.lastAvailableIp = lastAvailableIp;
-        return this;
+    public String getNetworkCacheKey() {
+        return networkCacheKey;
     }
 
-    public Network setNetworkIpBuilder(String networkIp) {
-        this.networkIp = networkIp;
-        return this;
-    }
-
-    public Network setBroadcastIpBuilder(String broadcastIp) {
-        this.broadcastIp = broadcastIp;
-        return this;
-    }
-
-    public Network setAddressesAmountBuilder(long addressesAmount) {
-        this.addressesAmount = String.valueOf(addressesAmount);
-        return this;
-    }
-
-    public Network setSubnetMaskBuilder(String subnetMask) {
-        this.subnetMask = subnetMask;
-        return this;
+    public void setNetworkCacheKey(String networkCacheKey) {
+        this.networkCacheKey = networkCacheKey;
     }
 }

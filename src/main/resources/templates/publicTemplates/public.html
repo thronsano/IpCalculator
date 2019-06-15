@@ -12,15 +12,29 @@
                                                      src="/logo.svg" width="450"></a></a>
 
     <form method="get" th:action="@{/public/calculator}" th:fragment="calculator">
-        <div class="columnHalfSpace" th:if="${networkTable}!=null">
+        <div class="columnHalfSpace" th:if="${network}!=null">
             <table class="networkTable">
+                <thead>
+                <th>Network IP</th>
+                <th>Subnet mask</th>
+                <th>Router IP</th>
+                <th>Broadcast IP</th>
+                <th>Available addresses</th>
+                <th>Available addresses start</th>
+                <th>Available addresses end</th>
+                </thead>
                 <tbody>
-                <tr th:each="j: ${#numbers.sequence(0, networkTable.height - 1)}">
-                    <td th:each="i: ${#numbers.sequence(0, networkTable.width - 1)}"
-                        th:text="(${networkTable.table[i][j]} == null) ? '' : ${networkTable.table[i][j]}">
-                    </td>
+                <tr>
+                    <td th:text="${network.networkIp}"></td>
+                    <td th:text="${network.subnetMask}"></td>
+                    <td th:text="${network.routerIp}"></td>
+                    <td th:text="${network.broadcastIp}"></td>
+                    <td th:text="${network.addressesAmount}"></td>
+                    <td th:text="${network.routerIp}"></td>
+                    <td th:text="${network.lastAvailableIp}"></td>
                 </tr>
                 </tbody>
+                <tbody>
             </table>
         </div>
 
@@ -31,8 +45,7 @@
                 <h2>Please input network IP:</h2>
                 <input class="input-field" id="networkIp" maxlength="15" minlength="7" name="networkIp"
                        pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" required
-                       size="15" th:value="${networkTable != null ? networkTable.table[0][1] : '192.168.1.1'}"
-                       type="text">
+                       size="15" th:value="${network != null ? network.networkIp : '192.168.1.1'}" type="text">
             </div>
         </div>
 
