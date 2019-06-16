@@ -18,22 +18,25 @@
 </nav>
 
 <section class="content">
+    <h1 th:inline="text">Logged as [[${#httpServletRequest.remoteUser}]]</h1>
+
     <div class="row" style="grid-row: 1">
         <section class="columnHalfSpace italic-grey-text">
             <div class="error-message" th:text="${error}"></div>
+            <div class="log-message" th:text="${creationLog}"></div>
         </section>
     </div>
-
-    <h1 th:inline="text">Logged as [[${#httpServletRequest.remoteUser}]]</h1>
-    <form class="columnHalfSpace" method="post" th:action="@{/private/calculator}" th:if="${networkList}!=null">
-        <input hidden name="networkCacheKey" th:value="${networkList[0].networkCacheKey}"/>
+    <br>
+    <form class="columnHalfSpace" method="post" th:action="@{/private/calculator}"
+          th:if="${networkList!=null && networkList.size() > 0}">
+        <input hidden name="networkCacheKey" th:value="${networkCacheKey}"/>
         <input class="input-field" id="networkName" name="networkName" placeholder="Network name" required type="text">
         <button class="btn-login btn-basic" th:href="@{/home}" type="submit">SAVE NETWORKS</button>
         <br><br>
     </form>
 
     <form method="get" th:action="@{/private/calculator}" th:fragment="calculator">
-        <div class="columnHalfSpace" th:if="${networkList}!=null">
+        <div class="columnHalfSpace" th:if="${networkList!=null && networkList.size() > 0}">
             <table class="networkTable">
                 <thead>
                 <th>Network IP</th>
@@ -65,7 +68,8 @@
             <br>
             <input class="input-field" id="networkAddress" maxlength="15" minlength="7" name="networkAddress"
                    pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" required
-                   size="15" th:value="${networkList != null ? networkList[0].networkAddress : '192.168.1.1'}"
+                   size="15"
+                   th:value="${networkList != null && networkList.size() > 0 ? networkList[0].networkAddress : '192.168.1.1'}"
                    type="text">
         </div>
 
@@ -91,8 +95,10 @@
             <div id="maskField"
                  th:style="'display:' + ${prevCalculationUsedMask == true ? 'block' : 'none'}">
                 <b>Please input network mask:</b>
-                <input class="input-field" id="networkMask" max="30" min="1" name="networkMask" placeholder="24"
-                       th:required="${prevCalculationUsedMask == true ? true : false}" type="number">
+                <input class="input-field" id="networkMask" max="30" min="1" name="networkMask"
+                       th:placeholder="${prevCalculationUsedMask == true && networkMask != null ? networkMask : '24'}"
+                       th:required="${prevCalculationUsedMask == true ? true : false}"
+                       type="number">
             </div>
             <br>
 
@@ -100,19 +106,22 @@
                  th:style="'display:' + ${prevCalculationUsedMask == true ? 'none' : 'block'}">
                 <b>Amount of computers to map:</b>
                 <input class="input-field" id="clientsAmount" max="2147483646" min="1" name="clientsAmount"
-                       placeholder="1024" th:required="${prevCalculationUsedMask == true ? false : true}"
+                       th:placeholder="${prevCalculationUsedMask == false && clientsAmount != null ? clientsAmount : '254'}"
+                       th:required="${prevCalculationUsedMask == true ? false : true}"
                        type="number">
             </div>
 
             <div id="paddingField" th:style="'display:' + ${prevCalculationUsedMask == true ? 'none' : 'block'}">
                 <b style="margin-left: 1rem">Percent of network to be left empty</b>
                 <input class="input-field" max="100" min="0" name="padding" step="0.01" style="margin-left: 1rem"
-                       th:value="0" type="number">
+                       th:placeholder="${prevCalculationUsedMask == false && padding != null ? padding : '0'}">
             </div>
         </div>
 
         <b>Divide to x subnets:</b>
-        <input class="input-field" id="subnetAmount" max="30" min="1" name="subnetAmount" placeholder="1" type="number">
+        <input class="input-field" id="subnetAmount" max="30" min="1" name="subnetAmount" placeholder="1"
+               th:value="${subnetAmount != null ? subnetAmount : '1'}"
+               type="number">
 
         <button class="btn-login btn-basic" th:href="@{/home}" type="submit">GET ADDRESSES</button>
     </form>

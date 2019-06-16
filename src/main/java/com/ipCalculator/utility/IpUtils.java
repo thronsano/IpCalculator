@@ -1,6 +1,7 @@
 package com.ipCalculator.utility;
 
 import com.google.common.collect.ImmutableList;
+import com.ipCalculator.entity.db.Network;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,7 +36,7 @@ public class IpUtils {
         return false;
     }
 
-    public static boolean networksOverlap(String firstNetworkCidr, String secondNetworkCidr) {
+    private static boolean networksOverlap(String firstNetworkCidr, String secondNetworkCidr) {
         try {
             String parameters = String.format("%s %s", firstNetworkCidr, secondNetworkCidr);
             try (BufferedReader reader = getCommandExecutionResultsReader("collides.py", parameters)) {
@@ -56,7 +57,7 @@ public class IpUtils {
             int divider = getDivider(targetAmount);
             String parameters = String.format("%s %d", networkCidr, divider);
             try (BufferedReader reader = getCommandExecutionResultsReader("subnet.py", parameters)) {
-                return reader.lines().collect(Collectors.toList());
+                return reader.lines().limit(targetAmount).collect(Collectors.toList());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,7 +81,7 @@ public class IpUtils {
         return new BufferedReader(new InputStreamReader(p.getInputStream()));
     }
 
-    public static String getLargerNetwork(String firstNetwork, String secondNetwork) {
+    private static String getHigherIp(String firstNetwork, String secondNetwork) {
         List<AtomicInteger> firstNetworkSegments = IpParsers.extractSegments(firstNetwork);
         List<AtomicInteger> secondNetworkSegments = IpParsers.extractSegments(secondNetwork);
 
@@ -92,5 +93,20 @@ public class IpUtils {
         }
 
         return secondNetwork;
+    }
+
+    public static String findFirstPossibleNonCollidingNetwork(String candidateCidr, List<Network> allNetworks) {
+        Network collidingNetwork = allNetworks.stream()
+                .filter(network -> networksOverlap(network.getCidrAddress(), candidateCidr))
+                .findAny()
+                .orElse(null);
+
+        if (collidingNetwork == null) {
+            return candidateCidr;
+        }
+
+        String highestIp = getHigherIp(IpParsers.getBroadcastAddress(candidateCidr), collidingNetwork.getBroadcastIp());
+        String nextCandidate = incrementByOne(highestIp) + "/" + IpParsers.extractMask(candidateCidr);
+        return findFirstPossibleNonCollidingNetwork(nextCandidate, allNetworks);
     }
 }

@@ -45,7 +45,8 @@
                 <h2>Please input network IP:</h2>
                 <input class="input-field" id="networkAddress" maxlength="15" minlength="7" name="networkAddress"
                        pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" required
-                       size="15" th:value="${networkList != null ? networkList[0].networkAddress : '192.168.1.1'}"
+                       size="15"
+                       th:value="${networkList != null && networkList.size() > 0 ? networkList[0].networkAddress : '192.168.1.1'}"
                        type="text">
             </div>
         </div>

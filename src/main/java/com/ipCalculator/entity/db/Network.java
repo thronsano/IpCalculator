@@ -36,9 +36,6 @@ public class Network {
     @Column
     private String name;
 
-    @Transient
-    private String networkCacheKey;
-
     public Network() {
     }
 
@@ -121,14 +118,6 @@ public class Network {
 
     public void setSubnetMask(String subnetMask) {
         this.subnetMask = subnetMask;
-    }
-
-    public String getNetworkCacheKey() {
-        return networkCacheKey;
-    }
-
-    public void setNetworkCacheKey(String networkCacheKey) {
-        this.networkCacheKey = networkCacheKey;
     }
 
     public String getCidrAddress() {

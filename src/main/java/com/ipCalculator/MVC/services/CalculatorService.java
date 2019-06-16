@@ -4,7 +4,7 @@ import com.ipCalculator.entity.builders.NetworkBuilder;
 import com.ipCalculator.entity.db.Network;
 import com.ipCalculator.entity.db.User;
 import com.ipCalculator.entity.exceptions.IpCalculatorException;
-import com.ipCalculator.utility.IpParsers;
+import com.ipCalculator.entity.model.NetworkWorkflowResult;
 import com.ipCalculator.utility.IpUtils;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.ipCalculator.MVC.services.CacheService.networkCache;
 import static java.lang.Integer.parseInt;
@@ -24,17 +23,17 @@ public class CalculatorService extends PersistenceService<Network> {
     @Autowired
     UserService userService;
 
-    public List<Network> createNetworkUsingMask(String networkAddress, String networkMask, String subnetAmount) {
-        return createNetworks(networkAddress, networkMask, Integer.parseInt(subnetAmount));
+    public NetworkWorkflowResult createNetworkUsingMask(String networkAddress, String networkMask, String subnetAmount) {
+        return createNetworks(convertToNetworkCidr(networkAddress, networkMask), Integer.parseInt(subnetAmount));
     }
 
-    public List<Network> createNetworkUsingClientsAmount(String networkAddress, String clientsAmountString, String paddingString, String subnetAmount) {
+    public NetworkWorkflowResult createNetworkUsingClientsAmount(String networkAddress, String clientsAmountString, String paddingString, String subnetAmount) {
         int padding = Integer.valueOf(paddingString);
         int clientsAmount = Integer.valueOf(clientsAmountString);
 
         String networkMask = calculateMinimumMask(clientsAmount + (int) Math.ceil(clientsAmount * padding / 100.0));
 
-        return createNetworks(networkAddress, networkMask, Integer.parseInt(subnetAmount));
+        return createNetworks(convertToNetworkCidr(networkAddress, networkMask), Integer.parseInt(subnetAmount));
     }
 
     private String calculateMinimumMask(int clientsAmount) {
@@ -42,25 +41,30 @@ public class CalculatorService extends PersistenceService<Network> {
         return String.valueOf(hostBits);
     }
 
-    private List<Network> createNetworks(String address, String networkMask, int subnetAmount) {
-        List<String> subnets = IpUtils.divideNetworkIntoSubnets(getNonCollidingCidr(address, networkMask), subnetAmount);
-        String networkCacheKey = UUID.randomUUID().toString();
-        List<Network> networkList = new ArrayList<>();
+    private NetworkWorkflowResult createNetworks(String networkCidr, int subnetAmount) {
+        NetworkWorkflowResult result = new NetworkWorkflowResult();
+        String nonCollidingCidr = getNonCollidingCidr(networkCidr, result);
 
-        for (String subnet : subnets) {
-            SubnetInfo networkInfo = new SubnetUtils(subnet).getInfo();
-            networkList.add(new NetworkBuilder()
-                    .setNetworkAddress(networkInfo.getNetworkAddress())
-                    .setBroadcastIp(networkInfo.getBroadcastAddress())
-                    .setIpRange(networkInfo.getLowAddress(), networkInfo.getHighAddress())
-                    .setAddressesAmount(networkInfo.getAddressCountLong())
-                    .setSubnetMask(networkInfo.getNetmask())
-                    .setNetworkCacheKey(networkCacheKey)
-                    .build());
+        if (nonCollidingCidr != null) {
+            List<String> subnetList = IpUtils.divideNetworkIntoSubnets(nonCollidingCidr, subnetAmount);
+            List<Network> networkList = new ArrayList<>();
+
+            for (String subnet : subnetList) {
+                SubnetInfo networkInfo = new SubnetUtils(subnet).getInfo();
+                networkList.add(new NetworkBuilder()
+                        .setNetworkAddress(networkInfo.getNetworkAddress())
+                        .setBroadcastIp(networkInfo.getBroadcastAddress())
+                        .setIpRange(networkInfo.getLowAddress(), networkInfo.getHighAddress())
+                        .setAddressesAmount(networkInfo.getAddressCountLong())
+                        .setSubnetMask(networkInfo.getNetmask())
+                        .build());
+            }
+
+            result.setNetworkList(networkList);
+            result.cacheNetworkList();
         }
 
-        networkCache.put(networkCacheKey, networkList);
-        return networkList;
+        return result;
     }
 
     private String convertToNetworkCidr(String address, String mask) {
@@ -68,23 +72,19 @@ public class CalculatorService extends PersistenceService<Network> {
         return networkAddress + "/" + mask;
     }
 
-    private String getNonCollidingCidr(String address, String networkMask) {
-        return findFirstNonColliding(convertToNetworkCidr(address, networkMask), getAllObjects("Network"));
-    }
+    private String getNonCollidingCidr(String networkCandidateCidr, NetworkWorkflowResult result) {
+        String nonCollidingNetworkCidr = null;
+        try {
+            nonCollidingNetworkCidr = IpUtils.findFirstPossibleNonCollidingNetwork(networkCandidateCidr, getAllObjects("Network"));
 
-    private String findFirstNonColliding(String candidateCidr, List<Network> allNetworks) {
-        Network collidingNetwork = allNetworks.stream()
-                .filter(network -> IpUtils.networksOverlap(network.getCidrAddress(), candidateCidr))
-                .findAny()
-                .orElse(null);
-
-        if (collidingNetwork == null) {
-            return candidateCidr;
+            if (!networkCandidateCidr.equals(nonCollidingNetworkCidr)) {
+                result.appendLog(String.format("Network %s is overlapping a different network.\nUsing closest next possible network - %s - instead.", networkCandidateCidr, nonCollidingNetworkCidr));
+            }
+        } catch (IllegalStateException ex) {
+            result.appendLog(String.format("No network can be created to avoid overlapping for %s!", networkCandidateCidr));
         }
 
-        String largerNetwork = IpUtils.getLargerNetwork(IpParsers.getBroadcastAddress(candidateCidr), collidingNetwork.getBroadcastIp());
-        String nextCandidate = IpUtils.incrementByOne(largerNetwork) + "/" + IpParsers.extractMask(candidateCidr);
-        return findFirstNonColliding(nextCandidate, allNetworks);
+        return nonCollidingNetworkCidr;
     }
 
     public void saveNetworks(String networkCacheKey, String networkName) {

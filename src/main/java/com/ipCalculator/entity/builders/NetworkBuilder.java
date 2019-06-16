@@ -33,11 +33,6 @@ public class NetworkBuilder {
         return this;
     }
 
-    public NetworkBuilder setNetworkCacheKey(String networkCacheKey) {
-        network.setNetworkCacheKey(networkCacheKey);
-        return this;
-    }
-
     public Network build() {
         return network;
     }
