@@ -243,11 +243,6 @@ td {
     min-width: 70px;
 }
 
-.networkTable tr:first-child {
-    font-weight: 900;
-    background-color: #1c1c1c;
-}
-
 tr:nth-child(even) {
     background-color: #282828;
 }

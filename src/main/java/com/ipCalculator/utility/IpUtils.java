@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+enum Comparison {
+    SMALLER, EQUAL, BIGGER
+}
+
 public class IpUtils {
     public static String incrementByOne(String address) throws IllegalStateException {
         List<AtomicInteger> segments = IpParsers.extractSegments(address);
@@ -81,18 +85,27 @@ public class IpUtils {
         return new BufferedReader(new InputStreamReader(p.getInputStream()));
     }
 
-    private static String getHigherIp(String firstNetwork, String secondNetwork) {
+    public static String getHigherIp(String firstNetwork, String secondNetwork) {
         List<AtomicInteger> firstNetworkSegments = IpParsers.extractSegments(firstNetwork);
         List<AtomicInteger> secondNetworkSegments = IpParsers.extractSegments(secondNetwork);
 
-        if (firstNetworkSegments.get(3).get() > secondNetworkSegments.get(3).get()
-                || firstNetworkSegments.get(2).get() > secondNetworkSegments.get(2).get()
-                || firstNetworkSegments.get(1).get() > secondNetworkSegments.get(1).get()
-                || firstNetworkSegments.get(0).get() > secondNetworkSegments.get(0).get()) {
-            return firstNetwork;
+        for (int i = 0; i < 4; i++) {
+            Comparison segmentComparison = compareSegment(i, firstNetworkSegments, secondNetworkSegments);
+            if (segmentComparison == Comparison.BIGGER)
+                return firstNetwork;
+            else if (segmentComparison == Comparison.SMALLER)
+                return secondNetwork;
         }
 
-        return secondNetwork;
+        return firstNetwork;
+    }
+
+    private static Comparison compareSegment(int index, List<AtomicInteger> segmentsOne, List<AtomicInteger> segmentsTwo) {
+        if (segmentsOne.get(index).get() < segmentsTwo.get(index).get())
+            return Comparison.SMALLER;
+        if (segmentsOne.get(index).get() > segmentsTwo.get(index).get())
+            return Comparison.BIGGER;
+        return Comparison.EQUAL;
     }
 
     public static String findFirstPossibleNonCollidingNetwork(String candidateCidr, List<Network> allNetworks) {

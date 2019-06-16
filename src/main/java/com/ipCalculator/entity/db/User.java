@@ -2,7 +2,7 @@ package com.ipCalculator.entity.db;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Ordering;
+import com.ipCalculator.entity.model.OrderingByAddress;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -92,7 +92,6 @@ public class User {
     }
 
     public ImmutableList<Network> getSortedNetworks() {
-        Ordering<Network> wageOrdering = Ordering.natural().reverse().onResultOf(Network::getId);
-        return ImmutableSortedSet.orderedBy(wageOrdering).addAll(getNetworks()).build().asList();
+        return ImmutableSortedSet.orderedBy(new OrderingByAddress().reversed()).addAll(getNetworks()).build().asList();
     }
 }
