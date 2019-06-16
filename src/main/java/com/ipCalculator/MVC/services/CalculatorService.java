@@ -4,6 +4,7 @@ import com.ipCalculator.entity.builders.NetworkBuilder;
 import com.ipCalculator.entity.db.Network;
 import com.ipCalculator.entity.db.User;
 import com.ipCalculator.entity.exceptions.IpCalculatorException;
+import com.ipCalculator.utility.IpParsers;
 import com.ipCalculator.utility.IpUtils;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.ipCalculator.MVC.services.CacheService.networkCache;
-import static com.ipCalculator.utility.IpUtils.networksOverlap;
 import static java.lang.Integer.parseInt;
 
 @Repository
@@ -43,7 +43,7 @@ public class CalculatorService extends PersistenceService<Network> {
     }
 
     private List<Network> createNetworks(String address, String networkMask, int subnetAmount) {
-        List<String> subnets = IpUtils.divideNetworkToSubnets(getNonCollidingCidr(convertToNetworkCidr(address, networkMask)), subnetAmount);
+        List<String> subnets = IpUtils.divideNetworkIntoSubnets(getNonCollidingCidr(address, networkMask), subnetAmount);
         String networkCacheKey = UUID.randomUUID().toString();
         List<Network> networkList = new ArrayList<>();
 
@@ -68,16 +68,24 @@ public class CalculatorService extends PersistenceService<Network> {
         return networkAddress + "/" + mask;
     }
 
-    private String getNonCollidingCidr(String networkCidr) {
-        boolean collision = getAllObjects("Network").stream().anyMatch(network -> networksOverlap(network.getCidrAddress(), networkCidr));
-
-        if (collision) {
-            //TODO: IMPLEMENT
-        }
-
-        return networkCidr;
+    private String getNonCollidingCidr(String address, String networkMask) {
+        return findFirstNonColliding(convertToNetworkCidr(address, networkMask), getAllObjects("Network"));
     }
 
+    private String findFirstNonColliding(String candidateCidr, List<Network> allNetworks) {
+        Network collidingNetwork = allNetworks.stream()
+                .filter(network -> IpUtils.networksOverlap(network.getCidrAddress(), candidateCidr))
+                .findAny()
+                .orElse(null);
+
+        if (collidingNetwork == null) {
+            return candidateCidr;
+        }
+
+        String largerNetwork = IpUtils.getLargerNetwork(IpParsers.getBroadcastAddress(candidateCidr), collidingNetwork.getBroadcastIp());
+        String nextCandidate = IpUtils.incrementByOne(largerNetwork) + "/" + IpParsers.extractMask(candidateCidr);
+        return findFirstNonColliding(nextCandidate, allNetworks);
+    }
 
     public void saveNetworks(String networkCacheKey, String networkName) {
         List<Network> networks = networkCache.getIfPresent(networkCacheKey);
