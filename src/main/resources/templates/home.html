@@ -119,9 +119,8 @@
         </div>
 
         <b>Divide to x subnets:</b>
-        <input class="input-field" id="subnetAmount" max="30" min="1" name="subnetAmount" placeholder="1"
-               th:value="${subnetAmount != null ? subnetAmount : '1'}"
-               type="number">
+        <input class="input-field" id="subnetAmount" max="10" min="1" name="subnetAmount" placeholder="1"
+               th:value="${subnetAmount != null ? subnetAmount : '1'}" type="number">
 
         <button class="btn-login btn-basic" th:href="@{/home}" type="submit">GET ADDRESSES</button>
     </form>
